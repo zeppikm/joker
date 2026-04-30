@@ -55,11 +55,11 @@
     </div>
 
     <script>
-        // Небольшой список для конкретных слов
+        // Короткий список для избранных слов
         const localBrain = {
             "машина": {
                 fact: "В 1900 году 38% всех автомобилей в США были электрическими.",
-                joke: "Стук в двигателе — это способ машины сказать, что ей нужен новый владелец."
+                joke: "Стук в двигателе — это способ машины сказать, что ей нужно внимание или новый владелец."
             },
             "космос": {
                 fact: "Если два куска одного металла соприкоснутся в космосе, они спаяются навсегда.",
@@ -87,30 +87,31 @@
             updateBg();
         }
 
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Работает и с твоим файлом data.js
+        // УНИВЕРСАЛЬНАЯ ФУНКЦИЯ: Теперь обе кнопки используют библиотеку!
         function getFallback(type) {
             const word = document.getElementById('topic').value.toLowerCase().trim();
             const out = document.getElementById('output');
 
             if (!word) { out.innerText = "Сначала слово!"; return; }
 
-            // 1. Проверяем, есть ли слово в ручном списке localBrain
+            // 1. Ищем в коротком списке (localBrain)
             if (localBrain[word]) {
-                out.innerHTML = `<strong>ИНТЕРЕСНО:</strong><br>${localBrain[word][type]}`;
+                const title = type === 'joke' ? "ШУТКА:" : "ИНТЕРЕСНО:";
+                out.innerHTML = `<strong>${title}</strong><br>${localBrain[word][type]}`;
             } 
-            // 2. Если нажали "Факт" и слова нет в списке — берем из data.js (myJokesLibrary)
-            else if (type === 'fact' && typeof myJokesLibrary !== 'undefined') {
+            // 2. Иначе берем рандом из data.js (myJokesLibrary) для ЛЮБОЙ кнопки
+            else if (typeof myJokesLibrary !== 'undefined' && myJokesLibrary.length > 0) {
                 const randomIndex = Math.floor(Math.random() * myJokesLibrary.length);
                 let template = myJokesLibrary[randomIndex];
-                out.innerHTML = `<strong>СЕКРЕТНЫЙ ФАКТ:</strong><br>${template.replace('${word}', word)}`;
+                
+                // Ставим заголовок в зависимости от нажатой кнопки
+                const prefix = (type === 'joke') ? "ШУТКА ДНЯ:" : "СЕКРЕТНЫЙ ФАКТ:";
+                
+                out.innerHTML = `<strong>${prefix}</strong><br>${template.replace('${word}', word)}`;
             }
-            // 3. Если ничего не подошло — выдаем стандартную заглушку
+            // 3. Если файл data.js вдруг не подгрузился
             else {
-                const templates = {
-                    joke: `Про "${word}" пока нет шуток, но звучит иронично!`,
-                    fact: `Секретный факт: когда ты гуглишь "${word}", где-то в мире улыбается один программист.`
-                };
-                out.innerHTML = templates[type];
+                out.innerHTML = `Про "${word}" пока нет информации в библиотеке.`;
             }
             updateBg();
         }
