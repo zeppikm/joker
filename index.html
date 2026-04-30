@@ -3,121 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiki-Joker Pro 4.0</title>
+    <title>Мои Проекты</title>
     <style>
-        :root { --accent: #00d4ff; --secondary: #ff0055; --smart: #00ff88; }
         body {
-            margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
-            background: #05000a no-repeat center center; background-size: cover;
-            transition: 0.8s; font-family: 'Segoe UI', sans-serif; color: #fff;
+            background: #0b0d17; /* Темный космический фон */
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #00d4ff;
+        }
+        .container {
+            display: flex;
+            gap: 25px;
         }
         .card {
-            background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(20px);
-            border: 1px solid var(--accent); border-radius: 25px; padding: 35px;
-            width: 90%; max-width: 500px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.9);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            width: 200px;
         }
-        input {
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px; padding: 15px; color: #fff; font-size: 18px; margin-bottom: 20px;
-            outline: none; text-align: center; box-sizing: border-box;
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
         }
-        .btn-group { display: flex; gap: 10px; }
-        button {
-            flex: 1; padding: 14px; border-radius: 10px; border: none; cursor: pointer;
-            font-weight: bold; font-size: 11px; text-transform: uppercase; transition: 0.3s;
+        .icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            display: block;
         }
-        .btn-smart { background: var(--smart); color: #000; }
-        .btn-fact { background: var(--secondary); color: #fff; }
-        .btn-joke { background: var(--accent); color: #000; }
-        
-        #output { 
-            margin-top: 25px; font-size: 16px; min-height: 150px; max-height: 300px;
-            overflow-y: auto; line-height: 1.6; font-weight: 300; 
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;
-            text-align: left; scrollbar-width: thin;
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
         }
-        .loading { color: var(--smart); font-style: italic; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <input type="text" id="topic" placeholder="Введи что угодно (напр. Гравитация)">
-        <div class="btn-group">
-            <button class="btn-smart" onclick="getWiki()">Суть (Wiki)</button>
-            <button class="btn-fact" onclick="getFallback('fact')">Факт</button>
-            <button class="btn-joke" onclick="getFallback('joke')">Шутка</button>
-        </div>
-        <div id="output">Готов бороздить просторы интернета...</div>
+    <h1>Пульт Управления</h1>
+    
+    <div class="container">
+        <a href="space.html" class="card">
+            <span class="icon">🚀</span>
+            <span class="title">Космос</span>
+        </a>
+
+        <a href="Joker.html" class="card">
+            <span class="icon">🤡</span>
+            <span class="title">Шутки</span>
+        </a>
     </div>
 
-    <script>
-        // База для Шуток и Фактов (пока расширяем вручную)
-        const localBrain = {
-            "машина": {
-                fact: "В 1900 году 38% всех автомобилей в США были электрическими. Мы просто вернулись к истокам.",
-                joke: "Стук в двигателе — это способ машины сказать, что ей нужно внимание или новый владелец."
-            },
-            "космос": {
-                fact: "Если два куска одного металла соприкоснутся в космосе, они спаяются навсегда. Это называется холодная сварка.",
-                joke: "Космос бесконечен. Как и мои попытки выспаться."
-            }
-        };
-
-        // Тот самый МАГИЧЕСКИЙ запрос к Википедии
-        async function getWiki() {
-            const word = document.getElementById('topic').value.trim();
-            const out = document.getElementById('output');
-
-            if (!word) {
-                out.innerText = "Напиши слово, не стесняйся!";
-                return;
-            }
-
-            out.innerHTML = '<div class="loading">Запрашиваю мозг Википедии...</div>';
-
-            // Ссылка для запроса (API Википедии)
-            const url = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.extract) {
-                    out.innerHTML = `<strong>ВЗГЛЯД ЭНЦИКЛОПЕДИИ:</strong><br>${data.extract}`;
-                } else {
-                    out.innerText = "Википедия в шоке, она не знает такого слова. Попробуй что-то попроще.";
-                }
-            } catch (error) {
-                out.innerText = "Ошибка связи с сервером. Похоже, интернет устал.";
-            }
-            
-            updateBg();
-        }
-
-        // Функция для Шуток и Фактов (ищет в базе или выдает рандом)
-        function getFallback(type) {
-            const word = document.getElementById('topic').value.toLowerCase().trim();
-            const out = document.getElementById('output');
-
-            if (!word) { out.innerText = "Сначала слово!"; return; }
-
-            if (localBrain[word]) {
-                out.innerHTML = `<strong>ИНТЕРЕСНО:</strong><br>${localBrain[word][type]}`;
-            } else {
-                const templates = {
-                    joke: `Про "${word}" пока нет шуток, но само это слово звучит довольно иронично, не находишь?`,
-                    fact: `Секретный факт: когда ты гуглишь "${word}", где-то в мире улыбается один программист.`
-                };
-                out.innerHTML = templates[type];
-            }
-            updateBg();
-        }
-
-        function updateBg() {
-            const id = Math.floor(Math.random() * 1000);
-            document.body.style.backgroundImage = `url('https://picsum.photos/1920/1080?random=${id}')`;
-        }
-    </script>
 </body>
 </html>
