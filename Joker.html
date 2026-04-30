@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wiki-Joker Pro 4.0</title>
+    
+    <script src="data.js"></script>
+
     <style>
         :root { --accent: #00d4ff; --secondary: #ff0055; --smart: #00ff88; }
         body {
@@ -52,61 +55,59 @@
     </div>
 
     <script>
-        // База для Шуток и Фактов (пока расширяем вручную)
+        // Небольшой список для конкретных слов
         const localBrain = {
             "машина": {
-                fact: "В 1900 году 38% всех автомобилей в США были электрическими. Мы просто вернулись к истокам.",
-                joke: "Стук в двигателе — это способ машины сказать, что ей нужно внимание или новый владелец."
+                fact: "В 1900 году 38% всех автомобилей в США были электрическими.",
+                joke: "Стук в двигателе — это способ машины сказать, что ей нужен новый владелец."
             },
             "космос": {
-                fact: "Если два куска одного металла соприкоснутся в космосе, они спаяются навсегда. Это называется холодная сварка.",
+                fact: "Если два куска одного металла соприкоснутся в космосе, они спаяются навсегда.",
                 joke: "Космос бесконечен. Как и мои попытки выспаться."
             }
         };
 
-        // Тот самый МАГИЧЕСКИЙ запрос к Википедии
         async function getWiki() {
             const word = document.getElementById('topic').value.trim();
             const out = document.getElementById('output');
-
-            if (!word) {
-                out.innerText = "Напиши слово, не стесняйся!";
-                return;
-            }
-
+            if (!word) { out.innerText = "Напиши слово!"; return; }
             out.innerHTML = '<div class="loading">Запрашиваю мозг Википедии...</div>';
-
-            // Ссылка для запроса (API Википедии)
             const url = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`;
-
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-
                 if (data.extract) {
                     out.innerHTML = `<strong>ВЗГЛЯД ЭНЦИКЛОПЕДИИ:</strong><br>${data.extract}`;
                 } else {
-                    out.innerText = "Википедия в шоке, она не знает такого слова. Попробуй что-то попроще.";
+                    out.innerText = "Википедия в шоке. Попробуй что-то попроще.";
                 }
             } catch (error) {
-                out.innerText = "Ошибка связи с сервером. Похоже, интернет устал.";
+                out.innerText = "Ошибка связи. Интернет устал.";
             }
-            
             updateBg();
         }
 
-        // Функция для Шуток и Фактов (ищет в базе или выдает рандом)
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Работает и с твоим файлом data.js
         function getFallback(type) {
             const word = document.getElementById('topic').value.toLowerCase().trim();
             const out = document.getElementById('output');
 
             if (!word) { out.innerText = "Сначала слово!"; return; }
 
+            // 1. Проверяем, есть ли слово в ручном списке localBrain
             if (localBrain[word]) {
                 out.innerHTML = `<strong>ИНТЕРЕСНО:</strong><br>${localBrain[word][type]}`;
-            } else {
+            } 
+            // 2. Если нажали "Факт" и слова нет в списке — берем из data.js (myJokesLibrary)
+            else if (type === 'fact' && typeof myJokesLibrary !== 'undefined') {
+                const randomIndex = Math.floor(Math.random() * myJokesLibrary.length);
+                let template = myJokesLibrary[randomIndex];
+                out.innerHTML = `<strong>СЕКРЕТНЫЙ ФАКТ:</strong><br>${template.replace('${word}', word)}`;
+            }
+            // 3. Если ничего не подошло — выдаем стандартную заглушку
+            else {
                 const templates = {
-                    joke: `Про "${word}" пока нет шуток, но само это слово звучит довольно иронично, не находишь?`,
+                    joke: `Про "${word}" пока нет шуток, но звучит иронично!`,
                     fact: `Секретный факт: когда ты гуглишь "${word}", где-то в мире улыбается один программист.`
                 };
                 out.innerHTML = templates[type];
